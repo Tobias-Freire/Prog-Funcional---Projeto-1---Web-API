@@ -3,10 +3,13 @@ defmodule Projeto1 do
   Projeto de requisições à API para buscar informações
   """
 
-  @url "https://opentdb.com/api.php?amount=10"
+  @url "https://opentdb.com/api.php?amount="
 
   def getQuestions() do
-    HTTPoison.get(@url)
+    IO.puts("Digite a quantidade de questões que você quer:")
+    q = IO.gets("") |> String.trim() # Remove a nova linha do final 
+    urlOpt = @url <> q
+    HTTPoison.get(urlOpt)
     |> process_response
     |> filtra_questoes
   end
