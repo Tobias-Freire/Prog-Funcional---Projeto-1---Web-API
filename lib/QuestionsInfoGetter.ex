@@ -8,10 +8,11 @@ defmodule QuestionsInfoGetter do
     O número de questões requisitadas é definida pelo usuário na execução da aplicação.
   """
 
+  import ClassificationGetter
+
   @url "https://opentdb.com/api.php?amount="
 
-
-  #definindo um mapa das categorias.
+  # Definindo um mapa das categorias.
   @categoria %{
     "conhecimento gerais" => 9,
     "livros" => 10,
@@ -39,7 +40,7 @@ defmodule QuestionsInfoGetter do
     "desenhos" => 32
   }
 
-  @dificulade %{
+  @dificuldade %{
     "fácil" => "easy",
     "médio" => "medium",
     "difícil" => "hard"
@@ -50,14 +51,14 @@ defmodule QuestionsInfoGetter do
     "vouf" => "boolean"
   }
 
-  #retorna o valor da chave passada.
+  # Retorna o valor da chave passada.
   def consultar_categoria(categ) do
     categoria = Map.get(@categoria, categ)
-    Integer.to_string(categoria)#transforma em string, ja que o valor eh um numero
+    Integer.to_string(categoria) # Transforma em string, já que o valor é um número
   end
 
   def consultar_dificuldade(difi) do
-    Map.get(@dificulade, difi)
+    Map.get(@dificuldade, difi)
   end
 
   def consultar_tipo(tip) do
@@ -65,11 +66,10 @@ defmodule QuestionsInfoGetter do
   end
 
   def getQuestions() do
-
-    IO.puts("Você deseja que as questões sejam aleátorias? Se sim, digite s, se não, digite n: ")
+    IO.puts("Você deseja que as questões sejam aleatórias? [s/n]: ")
     resposta = IO.gets("") |> String.trim() # Remove a nova linha do final
 
-    #trata a resposta dada pelo usuario.
+    # Tratamento da resposta dada pelo usuário.
     if resposta == "s" do
       IO.puts("\nDigite a quantidade de questões que você deseja, sendo o limite de 50: ")
       q = IO.gets("") |> String.trim()
@@ -86,7 +86,7 @@ defmodule QuestionsInfoGetter do
           {:error, "Não foi possível obter as questões."}
       end
     else
-      IO.puts("\nDigite a quantidade de questões que voce quer, sendo o limite de 50: ")
+      IO.puts("\nDigite a quantidade de questões que você quer, sendo o limite de 50: ")
       q = IO.gets("") |> String.trim()
 
       IO.puts("\nDigite a categoria que você deseja, são elas: ")
@@ -95,7 +95,7 @@ defmodule QuestionsInfoGetter do
       c = consultar_categoria(categ)
 
       IO.puts("\nDigite a dificuldade, são elas: ")
-      Enum.each(@dificulade, fn {original, _digitada} -> IO.puts "#{original}" end)
+      Enum.each(@dificuldade, fn {original, _digitada} -> IO.puts "#{original}" end)
       difi = IO.gets("") |> String.trim()
       d = consultar_dificuldade(difi)
 
@@ -104,9 +104,9 @@ defmodule QuestionsInfoGetter do
       tip = IO.gets("") |> String.trim()
       t = consultar_tipo(tip)
 
-       #s = string
+      # s = string
       sCategoria = "&category="
-      sDificuldade = "&dificulty="
+      sDificuldade = "&difficulty="
       sTipo = "&type="
 
       urlCompleta = @url <> q <> sCategoria <> c <> sDificuldade <> d <> sTipo <> t
@@ -123,34 +123,36 @@ defmodule QuestionsInfoGetter do
     end
   end
 
-  #funcao para mostrar uma questao do trivia por vez
+  # Função para mostrar uma questão do trivia por vez
   defp mostrar_questoes(questoes, opcoes, respostas) do
-    #usei o Enum.zip para combinar a lista de opcoes e repostas em uma lista de tuplas
-    #depois combinei essa lista de tuplas com a lista questoes usando Enum.zip novamente
-    #enum.each serve para iterar sobre cada tupla, para exibir uma questao por vez
-    #depois uso enum.each novamente com enum.with_index para que cada opcao de resposta tenha um indice
-    #as opcoes sao exibidas com seu indice respectivo
-    Enum.each Enum.zip(questoes, Enum.zip(opcoes, respostas)), fn {questao, {opcoes_questao, resposta_certa}} ->
-      IO.puts("\nQuestão: #{questao}")#mostra a questao ao usuario
+    total_questoes = length(questoes)
+
+    # Função auxiliar para processar as questões e contar os acertos
+    {acertos, _} = Enum.reduce(Enum.zip(questoes, Enum.zip(opcoes, respostas)), {0, []}, fn {questao, {opcoes_questao, resposta_certa}}, {acumulador, questoes_restantes} ->
+      IO.puts("\nQuestão: #{questao}") # Mostra a questão ao usuário
 
       Enum.each(Enum.with_index(opcoes_questao), fn {opcao, index} ->
         IO.puts("#{index + 1}. #{opcao}")
       end)
 
-      #recebe a resposta do usuario, que necessariamente vai ser um numero
-      #esse numero vai servir para representar a escolha do usuario
       resposta_usuario = IO.gets("Digite o número da sua resposta: ") |> String.trim()
       resposta_usuario_index = String.to_integer(resposta_usuario) - 1
 
-      #verifica se a resposta dada pelo usuario combina com o indice da resposta certa
-      if Enum.at(opcoes_questao, resposta_usuario_index) == resposta_certa do
-        IO.puts("Correto!")
-      else
-        IO.puts("Incorreto! A resposta correta é: #{resposta_certa}")
-      end
+      novo_acumulador =
+        if Enum.at(opcoes_questao, resposta_usuario_index) == resposta_certa do
+          IO.puts("Correto!")
+          acumulador + 1
+        else
+          IO.puts("Incorreto! A resposta correta é: #{resposta_certa}")
+          acumulador
+        end
 
       IO.puts("") # Espaço em branco para melhor visualização
-    end
+      {novo_acumulador, questoes_restantes}
+    end)
+
+    classification_result = getClassification(total_questoes, acertos)
+    IO.puts("\n#{classification_result}")
   end
 
   defp process_response({:ok, %HTTPoison.Response{status_code: 200, body: b}}) do
@@ -175,7 +177,7 @@ defmodule QuestionsInfoGetter do
     respostas
   end
 
-  defp filtra_opcoes({:error, _}), do: IO.puts("Erro ao filtrar opcoes.")
+  defp filtra_opcoes({:error, _}), do: IO.puts("Erro ao filtrar opções.")
   defp filtra_opcoes({:ok, json}) do
     {:ok, resp} = Poison.decode(json)
     respMaps = resp["results"]
