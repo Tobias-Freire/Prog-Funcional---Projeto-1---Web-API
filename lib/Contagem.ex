@@ -6,6 +6,6 @@ defmodule Countdown do
       :timer.sleep(1000)  # Atraso de 1 segundo
     end)
 
-    IO.write("\rDone!    \n")  # Imprime "Done!" e limpa a linha
+    IO.write("\rDone!\n")  # Imprime "Done!" e limpa a linha
   end
 end

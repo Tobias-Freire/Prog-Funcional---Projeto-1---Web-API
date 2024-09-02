@@ -71,7 +71,7 @@ defmodule QuestionsInfoGetter do
 
     #trata a resposta dada pelo usuario.
     if resposta == "s" do
-      IO.puts("Digite a quantidade de questões que você deseja, sendo o limite de 50: ")
+      IO.puts("\nDigite a quantidade de questões que você deseja, sendo o limite de 50: ")
       q = IO.gets("") |> String.trim()
       urlAleat = @url <> q
 
@@ -86,20 +86,20 @@ defmodule QuestionsInfoGetter do
           {:error, "Não foi possível obter as questões."}
       end
     else
-      IO.puts("Digite a quantidade de questões que voce quer, sendo o limite de 50: ")
+      IO.puts("\nDigite a quantidade de questões que voce quer, sendo o limite de 50: ")
       q = IO.gets("") |> String.trim()
 
-      IO.puts("Digite a categoria que você deseja, são elas: ")
-      Enum.each(@categoria, fn {numero, _cate} -> IO.puts "#{numero}" end)
+      IO.puts("\nDigite a categoria que você deseja, são elas: ")
+      Enum.each(@categoria, fn {numero, _cate} -> IO.puts "-#{numero}" end)
       categ = IO.gets("") |> String.trim()
       c = consultar_categoria(categ)
 
-      IO.puts("Digite a dificuldade, são elas: ")
+      IO.puts("\nDigite a dificuldade, são elas: ")
       Enum.each(@dificulade, fn {original, _digitada} -> IO.puts "#{original}" end)
       difi = IO.gets("") |> String.trim()
       d = consultar_dificuldade(difi)
 
-      IO.puts("Digite o tipo, são eles: ")
+      IO.puts("\nDigite o tipo, são eles: ")
       Enum.each(@tipo, fn {original, _digitada} -> IO.puts "#{original}" end)
       tip = IO.gets("") |> String.trim()
       t = consultar_tipo(tip)
@@ -131,7 +131,7 @@ defmodule QuestionsInfoGetter do
     #depois uso enum.each novamente com enum.with_index para que cada opcao de resposta tenha um indice
     #as opcoes sao exibidas com seu indice respectivo
     Enum.each Enum.zip(questoes, Enum.zip(opcoes, respostas)), fn {questao, {opcoes_questao, resposta_certa}} ->
-      IO.puts("Questão: #{questao}")#mostra a questao ao usuario
+      IO.puts("\nQuestão: #{questao}")#mostra a questao ao usuario
 
       Enum.each(Enum.with_index(opcoes_questao), fn {opcao, index} ->
         IO.puts("#{index + 1}. #{opcao}")
