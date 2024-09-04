@@ -5,11 +5,13 @@ defmodule QuestionsInfoGetter do
       - Perguntas
       - Opções
       - Respostas
-    O número de questões requisitadas é definida pelo usuário na execução da aplicação.
+    O número de questões, categoria, dificuldade e tipo de questão
+    são parâmetros definidos pelo usuário na execução da aplicação.
   """
 
   import ClassificationGetter
 
+  # Url base
   @url "https://opentdb.com/api.php?amount="
 
   # Definindo um mapa das categorias.
@@ -65,8 +67,9 @@ defmodule QuestionsInfoGetter do
     Map.get(@tipo, tip)
   end
 
+  # Inicia o jogo
   def getQuestions() do
-    IO.puts("Você deseja que as questões sejam aleatórias? [s/n]: ")
+    IO.puts("\nVocê deseja que as questões sejam aleatórias? [s/n]: ")
     resposta = IO.gets("") |> String.trim() # Remove a nova linha do final
 
     # Tratamento da resposta dada pelo usuário.
