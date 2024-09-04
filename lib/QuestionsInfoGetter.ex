@@ -49,7 +49,7 @@ defmodule QuestionsInfoGetter do
   }
 
   @tipo %{
-    "múltipla" => "multiple",
+    "múltipla’" => "multiple",
     "vouf" => "boolean"
   }
 
@@ -203,7 +203,14 @@ defmodule QuestionsInfoGetter do
       x
       |> String.replace("&#039;", "'")
       |> String.replace("&quot;", "\"")
+      |> String.replace("&rsquo;", "’")
       |> String.replace("&amp;", "&")
+      |> String.replace("&aacute;", "á")
+      |> String.replace("&eacute;", "é")
+      |> String.replace("&iacute;", "í")
+      |> String.replace("&oacute;", "ó")
+      |> String.replace("&uacute;", "ú")
+      |> String.replace("&ntilde;", "ñ")
     end)
   end
 
