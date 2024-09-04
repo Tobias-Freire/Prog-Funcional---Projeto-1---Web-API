@@ -80,8 +80,11 @@ defmodule QuestionsInfoGetter do
 
       with {:ok, json} <- HTTPoison.get(urlAleat) |> process_response do
         questoes = filtra_questoes({:ok, json})
+        questoes = conserta_caracteres(questoes)
         opcoes = filtra_opcoes({:ok, json})
+        opcoes = conserta_caracteres_opcoes(opcoes)
         respostas = filtra_respostas({:ok, json})
+        respostas = conserta_caracteres(respostas)
         mostrar_questoes(questoes, opcoes, respostas)
       else
         {:error, _reason} ->
@@ -115,8 +118,11 @@ defmodule QuestionsInfoGetter do
       urlCompleta = @url <> q <> sCategoria <> c <> sDificuldade <> d <> sTipo <> t
       with {:ok, json} <- HTTPoison.get(urlCompleta) |> process_response do
         questoes = filtra_questoes({:ok, json})
+        questoes = conserta_caracteres(questoes)
         opcoes = filtra_opcoes({:ok, json})
+        opcoes = conserta_caracteres_opcoes(opcoes)
         respostas = filtra_respostas({:ok, json})
+        respostas = conserta_caracteres(respostas)
         mostrar_questoes(questoes, opcoes, respostas)
       else
         {:error, _reason} ->
@@ -190,5 +196,28 @@ defmodule QuestionsInfoGetter do
       [opcao_correta | opcoes_incorretas] |> Enum.shuffle() # Embaralha as opções
     end
     opcoes
+  end
+
+  defp conserta_caracteres(lista) do
+    Enum.map(lista, fn x ->
+      x
+      |> String.replace("&#039;", "'")
+      |> String.replace("&quot;", "\"")
+      |> String.replace("&amp;", "&")
+    end)
+  end
+
+  defp conserta_caracteres_opcoes(mega_lista) do
+    mega_lista
+    |> Enum.with_index()
+    |> Enum.reduce(mega_lista, fn {sub_lista, contador}, acumulador ->
+      nova_sub_lista = Enum.map(sub_lista, fn y ->
+        y
+        |> String.replace("&#039;", "'")
+        |> String.replace("&quot;", "\"")
+        |> String.replace("&amp;", "&")
+      end)
+      List.replace_at(acumulador, contador, nova_sub_lista)
+    end)
   end
 end
