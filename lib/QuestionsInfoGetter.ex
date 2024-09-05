@@ -53,21 +53,37 @@ defmodule QuestionsInfoGetter do
     "vouf" => "boolean"
   }
 
+
   # Retorna o valor da chave passada.
   def consultar_categoria(categ) do
     categoria = Map.get(@categoria, categ)
     Integer.to_string(categoria) # Transforma em string, já que o valor é um número
   end
 
+
   def consultar_dificuldade(difi) do
     Map.get(@dificuldade, difi)
   end
+
 
   def consultar_tipo(tip) do
     Map.get(@tipo, tip)
   end
 
-  # Inicia o jogo
+
+  @doc """
+    A função getQuestions é aquela que inicia toda a lógica da aplicação.
+    Ao ser executada, segue o seguinte fluxo:
+      1 - Pergunta se as questões devem ser aleatórias ou não
+        1.1 - Caso não, pergunta que categoria o usuário quer, a quantidade de questões, a dificuldade e o tipo de questão
+        1.2 - Caso sim, pergunta diretamente a quantidade de questões
+      2 - Url é montada com os parâmetros passados pelo usuário
+      3 - Requisição é feita à API do trivia
+      4 - Resposta é tratada para ficar em formato JSON
+      5 - São recolhidas as informações das questões como a pergunta, opções, resposta correta, etc
+      6 - Cada pergunta é mostrada ao usuário e é requisitada uma resposta
+      7 - Ao final das respostas é mostrado o percentual de acertos e uma classificação com base nesse percentual
+  """
   def getQuestions() do
     IO.puts("\nVocê deseja que as questões sejam aleatórias? [s/n]: ")
     resposta = IO.gets("") |> String.trim() # Remove a nova linha do final
@@ -164,6 +180,9 @@ defmodule QuestionsInfoGetter do
     IO.puts("\n#{classification_result}")
   end
 
+
+  # A função process_response recebe a resposta completa da requisição da API e
+  # retorna apenas o body
   defp process_response({:ok, %HTTPoison.Response{status_code: 200, body: b}}) do
     {:ok, b}
   end
@@ -178,6 +197,7 @@ defmodule QuestionsInfoGetter do
     questoes
   end
 
+  # A função filtra_respostas recebe o body da resposta e retorna as respostas corretas de cada questão
   defp filtra_respostas({:error, _}), do: IO.puts("Erro ao filtrar respostas.")
   defp filtra_respostas({:ok, json}) do
     {:ok, resp} = Poison.decode(json)
@@ -186,10 +206,11 @@ defmodule QuestionsInfoGetter do
     respostas
   end
 
+  # A função filtra_opções recebe o body da resposta e retona as opções da resposta (resposta correta + respostas incorretas)
   defp filtra_opcoes({:error, _}), do: IO.puts("Erro ao filtrar opções.")
   defp filtra_opcoes({:ok, json}) do
     {:ok, resp} = Poison.decode(json)
-    respMaps = resp["results"]
+    respMaps = resp["results"]  
     opcoes = for map <- respMaps do
       opcao_correta = map["correct_answer"]
       opcoes_incorretas = map["incorrect_answers"]
