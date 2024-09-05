@@ -49,7 +49,7 @@ defmodule QuestionsInfoGetter do
   }
 
   @tipo %{
-    "múltipla’" => "multiple",
+    "múltipla" => "multiple",
     "vouf" => "boolean"
   }
 
@@ -189,34 +189,47 @@ defmodule QuestionsInfoGetter do
   defp process_response({:error, r}), do: {:error, r}
   defp process_response({:ok, %HTTPoison.Response{status_code: _, body: b}}), do: {:error, b}
 
-  defp filtra_questoes({:error, _}), do: IO.puts("Erro ao filtrar questões.")
+  # A função filtra_questes recebe o body da resposta e retorna as questões
   defp filtra_questoes({:ok, json}) do
-    {:ok, resp} = Poison.decode(json)
-    respMaps = resp["results"]
-    questoes = for map <- respMaps, do: map["question"]
-    questoes
+    case Poison.decode(json) do
+      {:ok, %{"results" => results}} ->
+        Enum.map(results, fn result ->
+          case result do
+            %{"question" => question} -> question
+            _ -> nil
+          end
+        end)
+      _ -> nil
+    end
   end
 
   # A função filtra_respostas recebe o body da resposta e retorna as respostas corretas de cada questão
-  defp filtra_respostas({:error, _}), do: IO.puts("Erro ao filtrar respostas.")
   defp filtra_respostas({:ok, json}) do
-    {:ok, resp} = Poison.decode(json)
-    respMaps = resp["results"]
-    respostas = for map <- respMaps, do: map["correct_answer"]
-    respostas
+    case Poison.decode(json) do
+      {:ok, %{"results" => results}} ->
+        Enum.map(results, fn result ->
+          case result do
+            %{"correct_answer" => correct_answer} -> correct_answer
+            _ -> nil
+          end
+        end)
+      _ -> nil
+    end
   end
 
   # A função filtra_opções recebe o body da resposta e retona as opções da resposta (resposta correta + respostas incorretas)
-  defp filtra_opcoes({:error, _}), do: IO.puts("Erro ao filtrar opções.")
   defp filtra_opcoes({:ok, json}) do
-    {:ok, resp} = Poison.decode(json)
-    respMaps = resp["results"]  
-    opcoes = for map <- respMaps do
-      opcao_correta = map["correct_answer"]
-      opcoes_incorretas = map["incorrect_answers"]
-      [opcao_correta | opcoes_incorretas] |> Enum.shuffle() # Embaralha as opções
+    case Poison.decode(json) do
+      {:ok, %{"results" => results}} ->
+        Enum.map(results, fn result ->
+          case result do
+            %{"incorrect_answers" => incorrect_answers, "correct_answer" => correct_answer} ->
+              [correct_answer | incorrect_answers] |> Enum.shuffle()
+            _ -> nil
+          end
+        end)
+      _ -> nil
     end
-    opcoes
   end
 
   defp conserta_caracteres(lista) do
