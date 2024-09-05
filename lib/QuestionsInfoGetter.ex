@@ -154,7 +154,7 @@ defmodule QuestionsInfoGetter do
 
     # Função auxiliar para processar as questões e contar os acertos
     {acertos, _} = Enum.reduce(Enum.zip(questoes, Enum.zip(opcoes, respostas)), {0, []}, fn {questao, {opcoes_questao, resposta_certa}}, {acumulador, questoes_restantes} ->
-      IO.puts("\nQuestão: #{questao}") # Mostra a questão ao usuário
+      IO.puts("\nQuestão: \e[33m#{questao}\e[0m") # Mostra a questão ao usuário
 
       Enum.each(Enum.with_index(opcoes_questao), fn {opcao, index} ->
         IO.puts("#{index + 1}. #{opcao}")
@@ -165,10 +165,10 @@ defmodule QuestionsInfoGetter do
 
       novo_acumulador =
         if Enum.at(opcoes_questao, resposta_usuario_index) == resposta_certa do
-          IO.puts("Correto!")
+          IO.puts("\e[32mCorreto!\e[0m")
           acumulador + 1
         else
-          IO.puts("Incorreto! A resposta correta é: #{resposta_certa}")
+          IO.puts("\e[31mIncorreto!\e[0m A resposta correta é: \e[32m#{resposta_certa}\e[0m")
           acumulador
         end
 
