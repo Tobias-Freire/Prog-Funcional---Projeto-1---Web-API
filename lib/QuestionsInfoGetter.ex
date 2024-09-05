@@ -16,7 +16,7 @@ defmodule QuestionsInfoGetter do
 
   # Definindo um mapa das categorias.
   @categoria %{
-    "conhecimento gerais" => 9,
+    "conhecimentos gerais" => 9,
     "livros" => 10,
     "filmes" => 11,
     "música" => 12,
@@ -60,7 +60,7 @@ defmodule QuestionsInfoGetter do
     Integer.to_string(categoria) # Transforma em string, já que o valor é um número
   end
 
-
+  
   def consultar_dificuldade(difi) do
     Map.get(@dificuldade, difi)
   end

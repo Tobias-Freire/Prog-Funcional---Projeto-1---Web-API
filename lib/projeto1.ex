@@ -5,7 +5,7 @@ defmodule Projeto1 do
   API usada: Open Trivia Database
   Link: https://opentdb.com/api_config.php
 
-  PARTICIPANTES: TOBIAS FREIRE, GUILHERME ARANHA, EMANUEL LLARENA
+  PARTICIPANTES: TOBIAS FREIRE, GUILHERME ARANHA, EVERTON EMANUEL LLARENA
   """
   import QuestionsInfoGetter # Importação do módulo que requisita as questões e informações à API
 
